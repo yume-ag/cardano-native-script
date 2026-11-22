@@ -1,0 +1,3 @@
+# Show LSP progress, e.g. while Lean-Prism builds its plugin on first use.
+[editor.lsp]
+display-progress-messages = true

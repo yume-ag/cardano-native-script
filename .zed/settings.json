@@ -1,0 +1,16 @@
+// Project-local Zed settings. Needs the "Lean 4" extension (id: lean4).
+// Runs Lean-Prism instead of plain `lake serve`, so `lean-tui` (run in a
+// terminal) can show proof graphs; Lean-Prism sends one when you hover over code.
+// The extension still wraps this server in its infoview proxy (.lake/infoview.md).
+// `lean-prism` must be on Zed's PATH: Zed loads the direnv environment from
+// .envrc, or start Zed from inside `nix develop`.
+{
+  "lsp": {
+    "lean4-lsp": {
+      "binary": {
+        "path": "lean-prism",
+        "arguments": ["serve"]
+      }
+    }
+  }
+}

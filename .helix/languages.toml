@@ -1,0 +1,12 @@
+# Project-local Helix config: use Lean-Prism as the Lean language server so
+# `lean-tui` (run in another terminal) can show proof graphs.
+# `lean-prism serve` runs `lake serve` with the Lean-Prism plugin loaded.
+# Both are on PATH inside `nix develop` (or via direnv, see .envrc).
+
+[language-server.lean-prism]
+command = "lean-prism"
+args = ["serve"]
+
+[[language]]
+name = "lean"
+language-servers = ["lean-prism"]
