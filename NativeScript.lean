@@ -1,5 +1,6 @@
 import NativeScript.Syntax
 import NativeScript.Semantics
+import NativeScript.Lemmas
 import NativeScript.Simplify
 import NativeScript.Dnf
 import NativeScript.Analysis

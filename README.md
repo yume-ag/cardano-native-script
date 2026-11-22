@@ -11,8 +11,8 @@ answers the questions people get wrong once scripts are nested:
 * **What is its script hash / policy ID?**
 
 It's written in Lean 4. The specification of native-script semantics and the
-analyses live in the same code base, and the analyses are stated (and, as the
-`sorry`s get replaced, proved) correct against that specification.
+analyses live in the same code base, and the analyses are proved correct
+against that specification.
 
 ```console
 $ nsa info examples/treasury-multisig.json --mainnet
@@ -81,6 +81,7 @@ before bumping Lean.
 |---|---|
 | `NativeScript/Syntax.lean` | `Script`, validity `Interval`, `Env` |
 | `NativeScript/Semantics.lean` | `Satisfies` (spec, a `Prop`), `eval` (implementation), `eval_iff`, `Decidable` |
+| `NativeScript/Lemmas.lean` | `Script.induct` (induction over scripts), `eval` equations used by the later proofs |
 | `NativeScript/Simplify.lean` | `simplify` + `simplify_sound` |
 | `NativeScript/Dnf.lean` | Normal form (clauses = key sets + time bounds), soundness and completeness |
 | `NativeScript/Analysis.lean` | `minSigners`, `signerSets`, `windows`, with their specs |
@@ -113,10 +114,11 @@ invalidHereafter)`. It follows `evalTimelock` from cardano-ledger:
 
 ## What the proofs guarantee, and what they don't
 
-*Status: theorem statements are in place and pass property tests; proofs are
-in progress (`grep -rn sorry NativeScript`).*
+*Status: every theorem below is proved, with no `sorry`. Each depends only on
+Lean's standard axioms (`propext`, `Quot.sound`, `Classical.choice`); check
+with `#print axioms`.*
 
-**Guaranteed, once proved:**
+**Guaranteed:**
 
 * `eval_iff`: the executable evaluator agrees with the declarative spec.
   `nsa check` with an interval runs `decide (Satisfies env s)`.
