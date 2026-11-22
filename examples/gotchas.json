@@ -1,0 +1,30 @@
+{
+  "type": "any",
+  "scripts": [
+    {
+      "type": "atLeast",
+      "required": 2,
+      "scripts": [
+        { "type": "sig", "keyHash": "abd38d292105097a402a7e370dc10b7a9a63602b94e0a9c766ba50ba" },
+        { "type": "sig", "keyHash": "abd38d292105097a402a7e370dc10b7a9a63602b94e0a9c766ba50ba" },
+        { "type": "sig", "keyHash": "ff4227fc3c9310e4e82e6f6d422f24ea44a5e471dcd3b6bab54961ec" }
+      ]
+    },
+    {
+      "type": "all",
+      "scripts": [
+        { "type": "sig", "keyHash": "7e9a4f27cecea0e52fbe336b5a0b9e955449c0080763a4d225d973f7" },
+        { "type": "after", "slot": 200 },
+        { "type": "before", "slot": 100 }
+      ]
+    },
+    {
+      "type": "all",
+      "scripts": [
+        { "type": "all", "scripts": [ { "type": "sig", "keyHash": "19f763cffe72c51acfffdd57b5823d74d6e36fd521e960463440d0e7" } ] },
+        { "type": "after", "slot": 50 },
+        { "type": "after", "slot": 80 }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+name = "native-script"
+version = "0.1.0"
+defaultTargets = ["nsa"]
+testDriver = "«nsa-test»"
+
+[[lean_lib]]
+name = "NativeScript"
+
+[[lean_exe]]
+name = "nsa"
+root = "Main"
+
+[[lean_exe]]
+name = "nsa-test"
+root = "Test"
