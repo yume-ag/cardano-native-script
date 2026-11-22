@@ -1,4 +1,4 @@
-import Lean.Data.Json
+import Json
 import NativeScript.Syntax
 
 /-!
@@ -8,36 +8,54 @@ import NativeScript.Syntax
 { "type": "atLeast", "required": 2,
   "scripts": [ { "type": "sig", "keyHash": "…" }, { "type": "after", "slot": 1000 } ] }
 ```
+
+Parsing and printing use [lean-json](https://github.com/paulbutcher/lean-json),
+whose parser and printer are proved correct against the RFC 8259 grammar. Its
+strict defaults reject duplicate object keys, which matters here:
+`{"type": "sig", "type": "any", …}` would otherwise mean different scripts to
+different tools.
 -/
 
 namespace NativeScript
-open Lean
 
-partial def Script.fromJson? (j : Json) : Except String Script := do
-  let ty ← j.getObjValAs? String "type"
+private def field (j : _root_.Json) (k : String) : Except String _root_.Json :=
+  match j.getObjVal? k with
+  | .ok v => .ok v
+  | .error _ => .error s!"missing field \"{k}\" in {Json.compress j}"
+
+private def withContext {α : Type} (ctx : String) : Except String α → Except String α
+  | .ok a => .ok a
+  | .error e => .error s!"{ctx}: {e}"
+
+partial def Script.fromJson? (j : _root_.Json) : Except String Script := do
+  let ty ← withContext "\"type\"" ((← field j "type").getStr?)
+  let nat (k : String) : Except String Nat := do withContext s!"\"{k}\"" ((← field j k).getNat?)
   let subs : Unit → Except String (List Script) := fun _ => do
-    let arr ← (← j.getObjVal? "scripts").getArr?
+    let arr ← withContext "\"scripts\"" ((← field j "scripts").getArr?)
     arr.toList.mapM Script.fromJson?
   match ty with
-  | "sig" => return .sig (← j.getObjValAs? String "keyHash").toLower
+  | "sig" => return .sig (← withContext "\"keyHash\"" ((← field j "keyHash").getStr?)).toLower
   | "all" => return .all (← subs ())
   | "any" => return .any (← subs ())
-  | "atLeast" => return .atLeast (← j.getObjValAs? Nat "required") (← subs ())
-  | "after" => return .after (← j.getObjValAs? Nat "slot")
-  | "before" => return .before (← j.getObjValAs? Nat "slot")
-  | other => throw s!"unknown native script type '{other}'"
+  | "atLeast" => return .atLeast (← nat "required") (← subs ())
+  | "after" => return .after (← nat "slot")
+  | "before" => return .before (← nat "slot")
+  | other => throw s!"unknown native script type \"{other}\""
 
-partial def Script.toJson : Script → Json
+/-- Fields in the order `cardano-cli` writes them. -/
+partial def Script.toJson : Script → _root_.Json
   | .sig k => Json.mkObj [("type", "sig"), ("keyHash", k)]
-  | .all ss => Json.mkObj [("type", "all"), ("scripts", Json.arr (ss.map toJson).toArray)]
-  | .any ss => Json.mkObj [("type", "any"), ("scripts", Json.arr (ss.map toJson).toArray)]
+  | .all ss => Json.mkObj [("type", "all"), ("scripts", .arr (ss.map toJson).toArray)]
+  | .any ss => Json.mkObj [("type", "any"), ("scripts", .arr (ss.map toJson).toArray)]
   | .atLeast n ss => Json.mkObj
-      [("type", "atLeast"), ("required", Lean.toJson n),
-       ("scripts", Json.arr (ss.map toJson).toArray)]
-  | .after t => Json.mkObj [("type", "after"), ("slot", Lean.toJson t)]
-  | .before t => Json.mkObj [("type", "before"), ("slot", Lean.toJson t)]
+      [("type", "atLeast"), ("required", Json.ofNat n),
+       ("scripts", .arr (ss.map toJson).toArray)]
+  | .after t => Json.mkObj [("type", "after"), ("slot", Json.ofNat t)]
+  | .before t => Json.mkObj [("type", "before"), ("slot", Json.ofNat t)]
 
 def Script.parse (input : String) : Except String Script := do
-  Script.fromJson? (← Json.parse input)
+  match Json.parse input with
+  | .ok j => Script.fromJson? j
+  | .error e => .error s!"invalid JSON: {e}"
 
 end NativeScript

@@ -50,7 +50,8 @@ lake test            # randomised checks of every theorem statement + Blake2b ve
 ```
 
 Without Nix, install [elan](https://github.com/leanprover/elan) and run the same
-`lake` commands. No Mathlib: it's core Lean only.
+`lake` commands. No Mathlib. The only dependency is lean-json, which needs nothing from the
+Lean frontend, so `nsa` is a small binary.
 
 ### Editors and lean-tui
 
@@ -142,7 +143,12 @@ in progress (`grep -rn sorry NativeScript`).*
   (definite-length lists up to 23 elements, indefinite beyond, as in
   cardano-ledger). A script serialised differently by another tool has a
   different hash on chain. Cross-check with `cardano-cli hash script`.
-* **JSON parsing, the CLI, and slot-to-UTC conversion.** Not verified.
+* **JSON.** Reading and writing the JSON text itself goes through
+  [lean-json](https://github.com/paulbutcher/lean-json), which is proved
+  correct against the RFC 8259 grammar and refuses duplicate keys. Mapping
+  JSON values to `Script`s (`NativeScript/Json.lean`) is tested by a round
+  trip, not proved.
+* **The CLI and slot-to-UTC conversion.** Not verified.
   `--mainnet` times assume mainnet's fixed era boundaries.
 * **Lint warnings.** Heuristics.
 * **Phase-1 validity beyond the script.** Fees, collateral, the slot actually

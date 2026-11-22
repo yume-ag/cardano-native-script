@@ -3,6 +3,12 @@ version = "0.1.0"
 defaultTargets = ["nsa"]
 testDriver = "«nsa-test»"
 
+# JSON: proved correct against RFC 8259, and independent of the Lean frontend.
+[[require]]
+name = "json"
+git = "https://github.com/paulbutcher/lean-json.git"
+rev = "v0.3.1"
+
 [[lean_lib]]
 name = "NativeScript"
 
