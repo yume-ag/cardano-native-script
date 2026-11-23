@@ -161,4 +161,4 @@ with `#print axioms`.*
 
 ## Licence
 
-TODO
+Apache 2.0
